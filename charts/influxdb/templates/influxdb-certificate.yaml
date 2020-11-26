@@ -1,0 +1,15 @@
+{{ if .Values.global.cert_manager_enabled }}
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: drycc-influxdb
+spec:
+  secretName: drycc-influxdb-auto-tls
+  issuerRef:
+    name: drycc-cluster-issuer
+    kind: ClusterIssuer
+  dnsNames:
+  - drycc-influxdb.{{ .Values.global.platform_domain }}
+  privateKey:
+    rotationPolicy: Always
+{{- end }}
