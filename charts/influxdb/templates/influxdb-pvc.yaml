@@ -1,0 +1,24 @@
+{{- if .Values.influxdb.persistence.enabled }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: drycc-influxdb
+  labels:
+    heritage: drycc
+spec:
+  accessModes:
+    - {{ .Values.influxdb.persistence.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.influxdb.persistence.size | quote }}
+{{- if .Values.influxdb.persistence.storageClass }}
+{{- if (eq "-" .Values.influxdb.persistence.storageClass) }}
+  storageClassName: ""
+{{- else }}
+  storageClassName: "{{ .Values.influxdb.persistence.storageClass }}"
+{{- end }}
+{{- end }}
+{{- if .Values.influxdb.persistence.volumeName }}
+  volumeName: "{{ .Values.influxdb.persistence.volumeName }}"
+{{- end }}
+{{- end }}

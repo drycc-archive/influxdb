@@ -1,0 +1,69 @@
+{{- if eq .Values.global.influxdb_location "on-cluster" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drycc-influxdb
+  labels:
+    heritage: drycc
+  annotations:
+    component.drycc.cc/version: {{ .Values.influxdb.docker_tag }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: drycc-influxdb
+  template:
+    metadata:
+      labels:
+        app: drycc-influxdb
+    spec:
+      containers:
+      - name: drycc-influxdb
+        image: {{.Values.influxdb.docker_registry}}{{.Values.influxdb.org}}/influxdb:{{.Values.influxdb.docker_tag}}
+        imagePullPolicy: {{.Values.influxdb.pull_policy}}
+{{- if or (.Values.influxdb.limits_cpu) (.Values.influxdb.limits_memory)}}
+        resources:
+          limits:
+{{- if (.Values.influxdb.limits_cpu) }}
+            cpu: {{.Values.influxdb.limits_cpu}}
+{{- end}}
+{{- if (.Values.influxdb.limits_memory) }}
+            memory: {{.Values.influxdb.limits_memory}}
+{{- end}}
+{{- end}}
+        ports:
+        - containerPort: 8083
+          name: admin
+        - containerPort: 8086
+          name: transport
+          protocol: TCP
+        - containerPort: 8084
+          name: ssltransport
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: 8086
+          initialDelaySeconds: 1
+          timeoutSeconds: 1
+        readinessProbe:
+          httpGet:
+            path: /ping
+            port: 8086
+          initialDelaySeconds: 1
+          timeoutSeconds: 1
+{{- if .Values.influxdb.persistence.enabled }}
+        volumeMounts:
+        - name: influxdb-data
+          mountPath: /data
+      # Allow user influxdb to write to /data
+      securityContext:
+        fsGroup: 1001
+      volumes:
+      - name: influxdb-data
+        persistentVolumeClaim:
+          claimName: drycc-influxdb
+{{- end }}
+{{- end }}

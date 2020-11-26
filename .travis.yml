@@ -1,0 +1,10 @@
+language: bash
+sudo: required
+services:
+  - docker
+script:
+  - make test && cd ..
+notifications:
+  slack:
+    rooms:
+      - drycc:xKmLlmJR4hfRAgVIOwdpAoC9#drycc

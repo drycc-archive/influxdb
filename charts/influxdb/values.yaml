@@ -1,0 +1,37 @@
+influxdb:
+  org: "drycc"
+  pull_policy: "Always"
+  docker_tag: "canary"
+  docker_registry: ""
+  # limits_cpu: "100m"
+  # limits_memory: "50Mi"
+  url: "my.influx.url"
+  database: "kubernetes"
+  user: "user"
+  password: "password"
+  persistence:
+    enabled: false
+    accessMode: ReadWriteOnce
+    size: 20Gi
+
+global:
+  # Set the location of Workflow's influxdb cluster
+  #
+  # Valid values are:
+  # - on-cluster: Run Influxdb within the Kubernetes cluster
+  # - off-cluster: Influxdb is running outside of the cluster and credentials and connection information will be provided.
+  influxdb_location: "on-cluster"
+  # Role-Based Access Control for Kubernetes >= 1.5
+  use_rbac: false
+  ingress_class: ""
+  # A domain name consists of one or more parts.
+  # Periods (.) are used to separate these parts.
+  # Each part must be 1 to 63 characters in length and can contain lowercase letters, digits, and hyphens (-).
+  # It must start and end with a lowercase letter or digit.
+  cluster_domain: "cluster.local"
+  # The public resolvable hostname to build your cluster with.
+  #
+  # This will be the hostname that is used to build endpoints such as "drycc.$HOSTNAME"
+  platform_domain: ""
+  # Whether cert_manager is enabled to automatically generate drycc certificates
+  cert_manager_enabled: "true"
