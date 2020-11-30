@@ -1,10 +1,12 @@
+FROM drycc/go-dev:latest AS go-dev
+
+
 FROM influxdb:1.8.3
 
 COPY . /
+COPY --from=go-dev /bin/envtpl /home/influxdb/envtpl
 
-RUN curl -SL -o /home/influxdb/envtpl https://github.com/arschles/envtpl/releases/download/0.2.3/envtpl_linux_amd64 \
-	&& chmod +x /home/influxdb/envtpl \
-	&& mkdir -p /data \
+RUN mkdir -p /data \
 	&& chmod +x /home/influxdb/start-influxdb
 
 VOLUME /data
