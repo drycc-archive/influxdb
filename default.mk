@@ -5,6 +5,7 @@ DOCKER_HOST = $(shell echo $$DOCKER_HOST)
 BUILD_TAG ?= git-$(shell git rev-parse --short HEAD)
 DRYCC_REGISTRY ?= ${DEV_REGISTRY}
 IMAGE_PREFIX ?= drycc
+PLATFORM ?= linux/amd64,linux/arm64
 
 include includes.mk
 include versioning.mk
@@ -19,6 +20,9 @@ deploy: check-kubectl docker-build docker-push install
 docker-build:
 	docker build ${DOCKER_BUILD_FLAGS} -t ${IMAGE} rootfs
 	docker tag ${IMAGE} ${MUTABLE_IMAGE}
+
+docker-buildx:
+	docker buildx build --platform ${PLATFORM} -t ${IMAGE} rootfs --push
 
 clean: check-docker
 	docker rmi $(IMAGE)
