@@ -5,10 +5,13 @@ influxdb:
   docker_registry: ""
   # limits_cpu: "100m"
   # limits_memory: "50Mi"
-  url: "my.influx.url"
+  # Configure the following ONLY if using an off-cluster Influx database
+  url: "http://my.influx.url:8086"
   database: "kubernetes"
-  user: "user"
+  username: "username"
   password: "password"
+  # Configure the following ONLY if you want persistence for on-cluster influxdb
+  # GCP PDs and EBS volumes are supported only
   persistence:
     enabled: false
     accessMode: ReadWriteOnce
