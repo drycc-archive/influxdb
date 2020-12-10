@@ -6,7 +6,7 @@ metadata:
   labels:
     heritage: drycc
   annotations:
-    component.drycc.cc/version: {{ .Values.influxdb.docker_tag }}
+    component.drycc.cc/version: {{ .Values.influxdb.image_tag }}
 spec:
   replicas: 1
   strategy:
@@ -21,8 +21,8 @@ spec:
     spec:
       containers:
       - name: drycc-influxdb
-        image: {{.Values.influxdb.docker_registry}}{{.Values.influxdb.org}}/influxdb:{{.Values.influxdb.docker_tag}}
-        imagePullPolicy: {{.Values.influxdb.pull_policy}}
+        image: {{.Values.influxdb.image_registry}}{{.Values.influxdb.org}}/influxdb:{{.Values.influxdb.image_tag}}
+        imagePullPolicy: {{.Values.influxdb.image_pull_policy}}
 {{- if or (.Values.influxdb.limits_cpu) (.Values.influxdb.limits_memory)}}
         resources:
           limits:
