@@ -1,11 +1,32 @@
 #!/bin/bash
 
-echo "Building config.toml!"
-./envtpl -in config.toml.tpl >> config.toml
-echo "Finished building toml..."
-echo "###########################################"
-echo "###########################################"
-cat config.toml
-echo "###########################################"
-echo "###########################################"
-exec influxd -config config.toml
+function setup_influxdb(){
+  influx setup -f -o "${INFLUXDB_ORG}" \
+    -b "${INFLUXDB_BUCKET}" \
+    -u "${INFLUXDB_USER}" \
+    -p "${INFLUXDB_PASSWORD}" \
+    -t "${INFLUXDB_TOKEN}" \
+    -r "${INFLUXDB_RETENTION}" \
+    > /dev/null 2>&1
+}
+
+function pre_influxdb(){
+  influxd &
+  pid=$!
+  while true
+  do
+    sleep 2
+    bucket=$(influx bucket ls  | awk '$2==ENVIRON["INFLUXDB_BUCKET"] {print $2}')
+    if setup_influxdb; then
+      break
+    elif [ "$bucket" ]; then
+      break
+    else
+      echo "Waiting influxdb start..."
+    fi
+  done
+  kill -15 $pid && wait $pid
+}
+
+pre_influxdb
+exec influxd

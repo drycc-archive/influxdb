@@ -1,21 +1,41 @@
-influxdb:
-  org: "drycc"
-  image_pull_policy: "Always"
-  image_tag: "canary"
-  image_registry: ""
-  # limits_cpu: "100m"
-  # limits_memory: "50Mi"
-  # Configure the following ONLY if using an off-cluster Influx database
-  url: "http://my.influx.url:8086"
-  database: "kubernetes"
-  user: "user"
-  password: "password"
-  # Configure the following ONLY if you want persistence for on-cluster influxdb
-  # GCP PDs and EBS volumes are supported only
-  persistence:
-    enabled: false
-    accessMode: ReadWriteOnce
-    size: 20Gi
+image_pull_policy: "Always"
+image_tag: "canary"
+image_registry: ""
+# limits_cpu: "100m"
+# limits_memory: "50Mi"
+# Configure the following ONLY if using an off-cluster Influx v2 database
+# URL configuration is only available in off-cluster Influx database
+url: "http://my.influx.url:8086"
+bucket: "kubernetes"
+org: "drycc"
+token: "token"
+# Configure the following is only available in on-cluster Influx database
+user: "admin"
+password: "admin123"
+retention: "30d"
+
+# Any custom environment variables
+# can be specified as key-value pairs under environment
+# this is usually a non required setting.
+environment:
+  RESERVED_NAMES: "drycc-influxdb"
+
+# GCP PDs and EBS volumes are supported only
+persistence:
+  enabled: false # Set to true to enable persistence
+  accessMode: ReadWriteOnce
+  size: 5Gi # PVC size
+  ## influxdb data Persistent Volume Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  ## Storage class of PV to bind. By default it looks for standard storage class.
+  ## If the PV uses a different storage class, specify that here.
+  storageClass: ""
+  volumeName: ""
 
 global:
   # Set the location of Workflow's influxdb cluster

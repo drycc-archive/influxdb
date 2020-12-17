@@ -6,7 +6,7 @@ metadata:
   labels:
     heritage: drycc
   annotations:
-    component.drycc.cc/version: {{ .Values.influxdb.image_tag }}
+    component.drycc.cc/version: {{ .Values.image_tag }}
 spec:
   replicas: 1
   strategy:
@@ -21,43 +21,66 @@ spec:
     spec:
       containers:
       - name: drycc-influxdb
-        image: {{.Values.influxdb.image_registry}}{{.Values.influxdb.org}}/influxdb:{{.Values.influxdb.image_tag}}
-        imagePullPolicy: {{.Values.influxdb.image_pull_policy}}
-{{- if or (.Values.influxdb.limits_cpu) (.Values.influxdb.limits_memory)}}
+        image: {{.Values.image_registry}}{{.Values.org}}/influxdb:{{.Values.image_tag}}
+        imagePullPolicy: {{.Values.image_pull_policy}}
+{{- if or (.Values.limits_cpu) (.Values.limits_memory)}}
         resources:
           limits:
-{{- if (.Values.influxdb.limits_cpu) }}
-            cpu: {{.Values.influxdb.limits_cpu}}
+{{- if (.Values.limits_cpu) }}
+            cpu: {{.Values.limits_cpu}}
 {{- end}}
-{{- if (.Values.influxdb.limits_memory) }}
-            memory: {{.Values.influxdb.limits_memory}}
+{{- if (.Values.limits_memory) }}
+            memory: {{.Values.limits_memory}}
 {{- end}}
 {{- end}}
         ports:
-        - containerPort: 8083
-          name: admin
         - containerPort: 8086
           name: transport
           protocol: TCP
-        - containerPort: 8084
-          name: ssltransport
-          protocol: TCP
+        env:
+        - name: "INFLUXDB_BUCKET"
+          valueFrom:
+            secretKeyRef:
+              name: influxdb-creds
+              key: bucket
+        - name: "INFLUXDB_ORG"
+          valueFrom:
+            secretKeyRef:
+              name: influxdb-creds
+              key: org
+        - name: "INFLUXDB_USER"
+          valueFrom:
+            secretKeyRef:
+              name: influxdb-creds
+              key: user
+        - name: "INFLUXDB_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              name: influxdb-creds
+              key: password
+        - name: "INFLUXDB_TOKEN"
+          valueFrom:
+            secretKeyRef:
+              name: influxdb-creds
+              key: token
+        - name: "INFLUXDB_RETENTION"
+          value: {{.Values.retention}}
+{{- range $key, $value := .Values.environment }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+{{- end }}
         livenessProbe:
           httpGet:
-            path: /ping
-            port: 8086
-          initialDelaySeconds: 1
-          timeoutSeconds: 1
+            path: /health
+            port: http
         readinessProbe:
           httpGet:
-            path: /ping
-            port: 8086
-          initialDelaySeconds: 1
-          timeoutSeconds: 1
-{{- if .Values.influxdb.persistence.enabled }}
+            path: /health
+            port: http
+{{- if .Values.persistence.enabled }}
         volumeMounts:
         - name: influxdb-data
-          mountPath: /data
+          mountPath: /root/.influxdbv2
       # Allow user influxdb to write to /data
       securityContext:
         fsGroup: 1001
