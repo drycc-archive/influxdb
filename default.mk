@@ -11,6 +11,7 @@ include includes.mk
 include versioning.mk
 include deploy.mk
 
+SHELL_SCRIPTS = $(wildcard _scripts/*.sh contrib/ci/*.sh rootfs/home/influxdb/*)
 TEST_ENV_PREFIX := docker run --rm -v ${CURDIR}:/bash -w /bash drycc/go-dev
 
 build: docker-build
