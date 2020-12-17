@@ -1,11 +1,5 @@
-FROM drycc/go-dev:latest AS go-dev
-
-
-FROM influxdb:1.8.3
-
+FROM quay.io/influxdb/influxdb:v2.0.3
 COPY . /
-COPY --from=go-dev /bin/envtpl /home/influxdb/envtpl
-
 RUN mkdir -p /data \
 	&& chmod +x /home/influxdb/start-influxdb
 
