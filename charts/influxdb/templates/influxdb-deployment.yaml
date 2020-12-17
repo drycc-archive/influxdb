@@ -80,7 +80,7 @@ spec:
 {{- if .Values.persistence.enabled }}
         volumeMounts:
         - name: influxdb-data
-          mountPath: /root/.influxdbv2
+          mountPath: /data
       # Allow user influxdb to write to /data
       securityContext:
         fsGroup: 1001
