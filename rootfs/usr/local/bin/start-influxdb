@@ -1,0 +1,57 @@
+#!/bin/bash
+
+function check_env(){
+  if [ -z "${INFLUXDB_ORG}" ]; then
+    echo "Please set INFLUXDB_ORG environment"
+    exit 1
+  fi
+  if [ -z "${INFLUXDB_BUCKET}" ]; then
+    echo "Please set INFLUXDB_BUCKET environment"
+    exit 1
+  fi  
+  if [ -z "${INFLUXDB_USER}" ]; then
+    echo "Please set INFLUXDB_USER environment"
+    exit 1
+  fi
+  if [ -z "${INFLUXDB_PASSWORD}" ]; then
+    echo "Please set INFLUXDB_PASSWORD environment"
+    exit 1
+  fi
+  if [ -z "${INFLUXDB_TOKEN}" ]; then
+    echo "Please set INFLUXDB_TOKEN environment"
+    exit 1
+  fi
+  if [ -z "${INFLUXDB_RETENTION}" ]; then
+    echo "Please set INFLUXDB_RETENTION environment"
+    exit 1
+  fi
+}
+
+function init_influxdb(){
+  influxd run --bolt-path /data/influxd.bolt --engine-path /data/engine --store bolt &
+  pid=$!
+  while true
+  do
+    sleep 2
+    has_bucket=$(influx bucket ls  | awk '$2==ENVIRON["INFLUXDB_BUCKET"] {print $2}')
+    if [ "$has_bucket" ]; then
+      break
+    else
+      influx setup -f \
+	-o "${INFLUXDB_ORG}" \
+        -b "${INFLUXDB_BUCKET}" \
+        -u "${INFLUXDB_USER}" \
+        -p "${INFLUXDB_PASSWORD}" \
+        -t "${INFLUXDB_TOKEN}" \
+        -r "${INFLUXDB_RETENTION}" \
+        > /dev/null 2>&1
+    fi
+  done
+  kill -15 $pid && wait $pid
+}
+
+check_env
+echo "Waiting to initialize influxdb..."
+init_influxdb
+echo "Initialization of database completed."
+exec influxd run --bolt-path /data/influxd.bolt --engine-path /data/engine --store bolt
