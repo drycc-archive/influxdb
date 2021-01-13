@@ -73,10 +73,6 @@ spec:
           httpGet:
             path: /health
             port: http
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: http
 {{- if .Values.persistence.enabled }}
         volumeMounts:
         - name: influxdb-data
