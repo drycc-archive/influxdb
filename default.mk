@@ -12,7 +12,7 @@ include versioning.mk
 include deploy.mk
 
 SHELL_SCRIPTS = $(wildcard _scripts/*.sh contrib/ci/*.sh rootfs/usr/local/bin/*)
-TEST_ENV_PREFIX := docker run --rm -v ${CURDIR}:/bash -w /bash drycc/go-dev
+TEST_ENV_PREFIX := docker run --rm -v ${CURDIR}:/bash -w /bash ${DEV_REGISTRY}/drycc/go-dev
 
 build: docker-build
 push: docker-push
@@ -36,7 +36,7 @@ test-style:
 .PHONY: build push docker-build clean upgrade deploy test test-style
 
 build-all:
-	docker build ${DOCKER_BUILD_FLAGS} -t ${DRYCC_REGISTRY}${IMAGE_PREFIX}/influxdb:${VERSION} influxdb/rootfs
+	docker build ${DOCKER_BUILD_FLAGS} -t ${DRYCC_REGISTRY}/${IMAGE_PREFIX}/influxdb:${VERSION} influxdb/rootfs
 
 push-all:
-	docker push ${DRYCC_REGISTRY}${IMAGE_PREFIX}/influxdb:${VERSION}
+	docker push ${DRYCC_REGISTRY}/${IMAGE_PREFIX}/influxdb:${VERSION}

@@ -1,6 +1,6 @@
 image_pull_policy: "Always"
 image_tag: "canary"
-image_registry: ""
+image_registry: "docker.io"
 # limits_cpu: "100m"
 # limits_memory: "50Mi"
 # Configure the following ONLY if using an off-cluster Influx v2 database

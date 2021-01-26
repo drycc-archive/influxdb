@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: drycc-influxdb
-        image: {{.Values.image_registry}}{{.Values.org}}/influxdb:{{.Values.image_tag}}
+        image: {{.Values.image_registry}}/{{.Values.org}}/influxdb:{{.Values.image_tag}}
         imagePullPolicy: {{.Values.image_pull_policy}}
 {{- if or (.Values.limits_cpu) (.Values.limits_memory)}}
         resources:

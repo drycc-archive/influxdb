@@ -33,7 +33,7 @@ function init_influxdb(){
   while true
   do
     sleep 2
-    has_bucket=$(influx bucket ls -n "$INFLUXDB_BUCKET")
+    has_bucket=$(influx bucket ls -n "$INFLUXDB_BUCKET" | awk '$2==ENVIRON["INFLUXDB_BUCKET"] {print $2}')
     if [ "$has_bucket" ]; then
       break
     else
