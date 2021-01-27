@@ -3,7 +3,7 @@ sudo: required
 services:
   - docker
 script:
-  - make test && cd ..
+  - DEV_REGISTRY="docker.io" make test && cd ..
 notifications:
   slack:
     rooms:
