@@ -1,6 +1,6 @@
 name: influxdb
 home: https://github.com/drycc/influxdb
-version: <Will be populated by the ci before publishing the chart>
+version: v9.0.0
 description: Influxdb for Drycc Workflow.
 maintainers:
   - name: Drycc Team

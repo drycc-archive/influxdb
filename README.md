@@ -1,7 +1,7 @@
 # InfluxDB
 
 ## Description
-[![Build Status](https://travis-ci.org/drycc/influxdb.svg?branch=main)](https://travis-ci.org/drycc/influxdb)
+[![Build Status](https://drone.drycc.cc/api/badges/drycc/influxdb/status.svg)](https://drone.drycc.cc/drycc/influxdb)
 
 Drycc (pronounced DAY-iss) is an open source PaaS that makes it easy to deploy and manage
 applications on your own servers. Drycc builds on [Kubernetes](http://kubernetes.io/) to provide
