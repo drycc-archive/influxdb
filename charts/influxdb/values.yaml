@@ -1,3 +1,4 @@
+image_org: "drycc"
 image_pull_policy: "Always"
 image_tag: "canary"
 image_registry: "docker.io"
