@@ -60,4 +60,4 @@ global:
   # This will be the hostname that is used to build endpoints such as "drycc.$HOSTNAME"
   platform_domain: ""
   # Whether cert_manager is enabled to automatically generate drycc certificates
-  cert_manager_enabled: "true"
+  cert_manager_enabled: true
