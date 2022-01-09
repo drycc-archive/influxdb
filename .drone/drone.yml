@@ -1,5 +1,5 @@
 kind: pipeline
-type: docker
+type: exec
 name: linux-amd64
 
 platform:
@@ -8,9 +8,6 @@ platform:
 
 steps:
 - name: test
-  image: docker.io/drycc/go-dev
-  pull: always
-  privileged: true
   commands:
   - make docker-build test
   environment:
@@ -22,14 +19,8 @@ steps:
     - push
     - tag
     - pull_request
-  volumes:
-  - name: image_registries
-    path: /etc/containers/registries.conf
 
 - name: publish
-  image: docker.io/drycc/go-dev
-  pull: always
-  privileged: true
   commands:
   - echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
   - make docker-build docker-immutable-push
@@ -47,24 +38,10 @@ steps:
     event:
     - push
     - tag
-  volumes:
-  - name: image_registries
-    path: /etc/containers/registries.conf
-
-trigger:
-  event:
-  - push
-  - tag
-  - pull_request
-
-volumes:
-- name: image_registries
-  host:
-    path: /etc/containers/registries.conf
 
 ---
 kind: pipeline
-type: docker
+type: exec
 name: linux-arm64
 
 platform:
@@ -73,9 +50,6 @@ platform:
 
 steps:
 - name: publish
-  image: docker.io/drycc/go-dev
-  pull: always
-  privileged: true
   commands:
   - echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
   - make docker-build docker-immutable-push
@@ -89,19 +63,10 @@ steps:
       from_secret: docker_username
     DOCKER_PASSWORD:
       from_secret: docker_password
-  volumes:
-  - name: image_registries
-    path: /etc/containers/registries.conf
-
-trigger:
-  event:
-  - push
-  - tag
-
-volumes:
-- name: image_registries
-  host:
-    path: /etc/containers/registries.conf
+  when:
+    event:
+    - push
+    - tag
 
 ---
 kind: pipeline
@@ -143,12 +108,11 @@ depends_on:
 
 ---
 kind: pipeline
-type: docker
+type: exec
 name: chart
 
 steps:
 - name: generate chart
-  image: docker.io/drycc/python-dev
   commands:
   - IMAGE_TAG=$([ ! -z $DRONE_TAG ] && echo ${DRONE_TAG:1} || echo \"canary\")
   - sed -i "s/image_tag:\ \"canary\"/image_tag:\ $IMAGE_TAG/g" charts/influxdb/values.yaml
@@ -161,8 +125,7 @@ steps:
       from_secret: chartmuseum_password
     CHARTMUSEUM_API:
       from_secret: chartmuseum_api
-
-trigger:
-  event:
-  - push
-  - tag
+  when:
+    event:
+    - push
+    - tag
