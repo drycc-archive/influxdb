@@ -1,4 +1,4 @@
-{{- if eq .Values.global.influxdb_location "on-cluster" }}
+{{- if eq .Values.global.influxdbLocation "on-cluster" }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,7 +6,7 @@ metadata:
   labels:
     heritage: drycc
   annotations:
-    component.drycc.cc/version: {{ .Values.image_tag }}
+    component.drycc.cc/version: {{ .Values.imageTag }}
 spec:
   replicas: 1
   strategy:
@@ -21,16 +21,16 @@ spec:
     spec:
       containers:
       - name: drycc-influxdb
-        image: {{.Values.image_registry}}/{{.Values.image_org}}/influxdb:{{.Values.image_tag}}
-        imagePullPolicy: {{.Values.image_pull_policy}}
-{{- if or (.Values.limits_cpu) (.Values.limits_memory)}}
+        image: {{.Values.imageRegistry}}/{{.Values.imageOrg}}/influxdb:{{.Values.imageTag}}
+        imagePullPolicy: {{.Values.imagePullPolicy}}
+{{- if or (.Values.limitsCpu) (.Values.limitsMemory)}}
         resources:
           limits:
-{{- if (.Values.limits_cpu) }}
-            cpu: {{.Values.limits_cpu}}
+{{- if (.Values.limitsCpu) }}
+            cpu: {{.Values.limitsCpu}}
 {{- end}}
-{{- if (.Values.limits_memory) }}
-            memory: {{.Values.limits_memory}}
+{{- if (.Values.limitsMemory) }}
+            memory: {{.Values.limitsMemory}}
 {{- end}}
 {{- end}}
         ports:

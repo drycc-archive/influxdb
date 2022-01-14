@@ -1,4 +1,4 @@
-{{- if eq .Values.global.influxdb_location "on-cluster" }}
+{{- if eq .Values.global.influxdbLocation "on-cluster" }}
 apiVersion: v1
 kind: Service
 metadata:

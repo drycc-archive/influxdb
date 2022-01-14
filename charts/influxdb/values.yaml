@@ -1,9 +1,9 @@
-image_org: "drycc"
-image_pull_policy: "Always"
-image_tag: "canary"
-image_registry: "docker.io"
-# limits_cpu: "100m"
-# limits_memory: "50Mi"
+imageOrg: "drycc"
+imagePullPolicy: "Always"
+imageTag: "canary"
+imageRegistry: "docker.io"
+# limitsCpu: "100m"
+# limitsMemory: "50Mi"
 # Configure the following ONLY if using an off-cluster Influx v2 database
 # URL configuration is only available in off-cluster Influx database
 url: "http://my.influx.url:8086"
@@ -46,18 +46,18 @@ global:
   # Valid values are:
   # - on-cluster: Run Influxdb within the Kubernetes cluster
   # - off-cluster: Influxdb is running outside of the cluster and credentials and connection information will be provided.
-  influxdb_location: "on-cluster"
+  influxdbLocation: "on-cluster"
   # Role-Based Access Control for Kubernetes >= 1.5
-  use_rbac: false
-  ingress_class: ""
+  rbac: false
+  ingressClass: ""
   # A domain name consists of one or more parts.
   # Periods (.) are used to separate these parts.
   # Each part must be 1 to 63 characters in length and can contain lowercase letters, digits, and hyphens (-).
   # It must start and end with a lowercase letter or digit.
-  cluster_domain: "cluster.local"
+  clusterDomain: "cluster.local"
   # The public resolvable hostname to build your cluster with.
   #
   # This will be the hostname that is used to build endpoints such as "drycc.$HOSTNAME"
-  platform_domain: ""
+  platformDomain: ""
   # Whether cert_manager is enabled to automatically generate drycc certificates
-  cert_manager_enabled: true
+  certManagerEnabled: true
