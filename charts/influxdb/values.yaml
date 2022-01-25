@@ -16,7 +16,10 @@ token: ""
 user: "admin"
 password: "admin123"
 retention: "30d"
-
+# Service
+service:
+  # Provide any additional service annotations
+  annotations: {}
 # Any custom environment variables
 # can be specified as key-value pairs under environment
 # this is usually a non required setting.
