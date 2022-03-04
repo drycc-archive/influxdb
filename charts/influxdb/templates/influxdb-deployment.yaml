@@ -78,8 +78,10 @@ spec:
         - name: influxdb-data
           mountPath: /data
       # Allow user influxdb to write to /data
-      securityContext:
-        fsGroup: 1001
+      securityContext:                
+        fsGroup: 1001         
+        runAsGroup: 1001     
+        runAsUser: 1001
       volumes:
       - name: influxdb-data
         persistentVolumeClaim:

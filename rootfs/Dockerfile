@@ -1,17 +1,16 @@
 FROM docker.io/drycc/base:bullseye
 
-RUN adduser --system \
-	--shell /bin/bash \
-	--disabled-password \
-	--home /data \
-	--group \
-	drycc
+ARG DRYCC_UID=1001
+ARG DRYCC_GID=1001
+ARG DRYCC_HOME_DIR=/data
+
+RUN groupadd drycc --gid ${DRYCC_GID} \
+  && useradd drycc -u ${DRYCC_UID} -g ${DRYCC_GID} -s /bin/bash -m -d ${DRYCC_HOME_DIR}
 
 COPY . /
 ENV INFLUXDB_VERSION="2.1.1"
 
 RUN install-stack influxdb $INFLUXDB_VERSION \
-  && mkdir -p /data \
   && chmod +x /usr/local/bin/start-influxdb \
   && rm -rf \
       /usr/share/doc \
@@ -29,7 +28,7 @@ RUN install-stack influxdb $INFLUXDB_VERSION \
       /var/cache/apk/* /root/.gem/ruby/*/cache/*.gem \
   && bash -c "mkdir -p /usr/share/man/man{1..8}"
 
-VOLUME /data
+VOLUME ${DRYCC_HOME_DIR}
 
 USER drycc
 CMD ["start-influxdb"]
