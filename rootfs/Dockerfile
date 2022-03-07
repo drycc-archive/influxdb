@@ -1,16 +1,15 @@
 FROM docker.io/drycc/base:bullseye
 
-ARG DRYCC_UID=1001
-ARG DRYCC_GID=1001
-ARG DRYCC_HOME_DIR=/data
-
-RUN groupadd drycc --gid ${DRYCC_GID} \
-  && useradd drycc -u ${DRYCC_UID} -g ${DRYCC_GID} -s /bin/bash -m -d ${DRYCC_HOME_DIR}
+ENV DRYCC_UID=1001 \
+  DRYCC_GID=1001 \
+  DRYCC_HOME_DIR=/data \
+  INFLUXDB_VERSION="2.1.1"
 
 COPY . /
-ENV INFLUXDB_VERSION="2.1.1"
 
-RUN install-stack influxdb $INFLUXDB_VERSION \
+RUN groupadd drycc --gid ${DRYCC_GID} \
+  && useradd drycc -u ${DRYCC_UID} -g ${DRYCC_GID} -s /bin/bash -m -d ${DRYCC_HOME_DIR} \
+  && install-stack influxdb $INFLUXDB_VERSION \
   && chmod +x /usr/local/bin/start-influxdb \
   && rm -rf \
       /usr/share/doc \
@@ -30,7 +29,7 @@ RUN install-stack influxdb $INFLUXDB_VERSION \
 
 VOLUME ${DRYCC_HOME_DIR}
 
-USER drycc
+USER ${DRYCC_UID}
 CMD ["start-influxdb"]
 
 # Expose the ssl http api port
