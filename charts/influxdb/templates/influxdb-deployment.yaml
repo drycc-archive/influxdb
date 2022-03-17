@@ -19,7 +19,7 @@ spec:
       labels:
         app: drycc-influxdb
     spec:
-      {{- include "common.affinities.nodes.soft" (dict "key" "app" "values" (list "drycc-influxdb")) | indent 6 }}
+      {{- include "common.affinities.pods.soft" (dict "key" "app" "values" (list "drycc-influxdb")) | indent 6 }}
       containers:
       - name: drycc-influxdb
         image: {{.Values.imageRegistry}}/{{.Values.imageOrg}}/influxdb:{{.Values.imageTag}}
