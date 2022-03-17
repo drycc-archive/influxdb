@@ -1,7 +1,12 @@
 name: influxdb
 home: https://github.com/drycc/influxdb
-version: v9.0.0
+appVersion: v2
+dependencies:
+  - name: common
+    repository: https://charts.drycc.cc/stable
+    version: 1.x.x
 description: Influxdb for Drycc Workflow.
 maintainers:
   - name: Drycc Team
     email: engineering@drycc.com
+version: v1.0.0
