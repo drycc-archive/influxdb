@@ -1,9 +1,9 @@
-FROM docker.io/drycc/base:bullseye
+FROM registry.drycc.cc/drycc/base:bullseye
 
 ENV DRYCC_UID=1001 \
   DRYCC_GID=1001 \
   DRYCC_HOME_DIR=/data \
-  INFLUXDB_VERSION="2.1.1"
+  INFLUXDB_VERSION="2.2.0"
 
 COPY . /
 
