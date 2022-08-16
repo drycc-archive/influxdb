@@ -11,7 +11,7 @@ include includes.mk
 include versioning.mk
 include deploy.mk
 
-SHELL_SCRIPTS = $(wildcard _scripts/*.sh contrib/ci/*.sh rootfs/usr/local/bin/*)
+SHELL_SCRIPTS = $(wildcard _scripts/*.sh contrib/ci/*.sh rootfs/usr/local/bin/*.sh)
 TEST_ENV_PREFIX := docker run --rm -v ${CURDIR}:/bash -w /bash ${DEV_REGISTRY}/drycc/go-dev
 
 build: docker-build

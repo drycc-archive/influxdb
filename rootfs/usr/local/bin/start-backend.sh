@@ -38,7 +38,7 @@ function init_influxdb(){
       break
     else
       influx setup -f \
-	-o "${INFLUXDB_ORG}" \
+	      -o "${INFLUXDB_ORG}" \
         -b "${INFLUXDB_BUCKET}" \
         -u "${INFLUXDB_USER}" \
         -p "${INFLUXDB_PASSWORD}" \

@@ -1,6 +1,6 @@
 {{- if eq .Values.global.influxdbLocation "on-cluster" }}
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: drycc-influxdb
   labels:
@@ -8,9 +8,8 @@ metadata:
   annotations:
     component.drycc.cc/version: {{ .Values.imageTag }}
 spec:
-  replicas: 1
-  strategy:
-    type: Recreate
+  replicas: {{ .Values.replicas }}
+  serviceName: drycc-influxdb
   selector:
     matchLabels:
       app: drycc-influxdb
@@ -24,22 +23,59 @@ spec:
         podAntiAffinity: {{- include "common.affinities.pods" (dict "type" .Values.podAntiAffinityPreset.type "key" .Values.podAntiAffinityPreset.key "values" .Values.podAntiAffinityPreset.values ) | nindent 10 }}
         nodeAffinity: {{- include "common.affinities.nodes" (dict "type" .Values.nodeAffinityPreset.type "key" .Values.nodeAffinityPreset.key "values" .Values.nodeAffinityPreset.values ) | nindent 10 }}
       containers:
-      - name: drycc-influxdb
+      - name: drycc-influxdb-proxy
         image: {{.Values.imageRegistry}}/{{.Values.imageOrg}}/influxdb:{{.Values.imageTag}}
         imagePullPolicy: {{.Values.imagePullPolicy}}
-{{- if or (.Values.limitsCpu) (.Values.limitsMemory)}}
+        args:
+          - start-proxy.py
+        {{- if or (.Values.limitsCpu) (.Values.limitsMemory)}}
         resources:
           limits:
-{{- if (.Values.limitsCpu) }}
+            {{- if (.Values.limitsCpu) }}
             cpu: {{.Values.limitsCpu}}
-{{- end}}
-{{- if (.Values.limitsMemory) }}
+            {{- end}}
+            {{- if (.Values.limitsMemory) }}
             memory: {{.Values.limitsMemory}}
-{{- end}}
-{{- end}}
+            {{- end}}
+        {{- end}}
+        ports:
+        - containerPort: 8000
+          name: proxy
+          protocol: TCP
+        env:
+        {{- $backends := (list ) }}
+        {{ $backendCount := .Values.replicas | int }}
+        {{- range $i := until $backendCount }}
+        {{- $backends = (append $backends (printf "http://drycc-influxdb-%d.drycc-influxdb.%s.svc.%s:8086" $i $.Release.Namespace $.Values.global.clusterDomain)) }}
+        {{- end -}}
+        - name: "RELAY_BACKENDS"
+          value: {{ join "," $backends }}
+        - name: "RELAY_BACKENDS_INTERVAL"
+          value: "172800"
+        - name: "RELAY_BACKENDS_BLOCK_TIME"
+          value: "60"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+      - name: drycc-influxdb-backend
+        image: {{.Values.imageRegistry}}/{{.Values.imageOrg}}/influxdb:{{.Values.imageTag}}
+        imagePullPolicy: {{.Values.imagePullPolicy}}
+        args:
+          - start-backend.sh
+        {{- if or (.Values.limitsCpu) (.Values.limitsMemory)}}
+        resources:
+          limits:
+            {{- if (.Values.limitsCpu) }}
+            cpu: {{.Values.limitsCpu}}
+            {{- end}}
+            {{- if (.Values.limitsMemory) }}
+            memory: {{.Values.limitsMemory}}
+            {{- end}}
+        {{- end}}
         ports:
         - containerPort: 8086
-          name: transport
+          name: backend
           protocol: TCP
         env:
         - name: "INFLUXDB_BUCKET"
@@ -69,10 +105,10 @@ spec:
               key: token
         - name: "INFLUXDB_RETENTION"
           value: {{.Values.retention}}
-{{- range $key, $value := .Values.environment }}
+        {{- range $key, $value := .Values.environment }}
         - name: {{ $key }}
           value: {{ $value | quote }}
-{{- end }}
+        {{- end }}
         livenessProbe:
           httpGet:
             path: /health

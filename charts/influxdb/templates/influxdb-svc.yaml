@@ -13,8 +13,11 @@ metadata:
 spec:
   ports:
   - port: 80
-    name: transport
-    targetPort: transport
+    name: proxy
+    targetPort: proxy
+  - port: 8086
+    name: backend
+    targetPort: backend
   selector:
     app: drycc-influxdb
 {{- end }}
