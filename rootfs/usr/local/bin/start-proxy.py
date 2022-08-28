@@ -12,6 +12,7 @@ from sanic import Sanic
 from urllib.request import urlopen
 from multiprocessing import Manager
 from asyncio.exceptions import CancelledError
+from aiohttp.client import ClientRequest
 from aiohttp.client_exceptions import ClientConnectorError
 
 
@@ -64,14 +65,14 @@ def finish(app, loop):
 async def forward(request, path, relay_backend, reply=True):
     headers = {}
     for key, value in request.headers.items():
-        if key == "transfer-encoding":
+        if key in ("host", "transfer-encoding", ):
             continue
         headers[key] = value
     async with app.ctx.http.request(    
         request.method,
         '%s/%s' % (relay_backend, path),
         params=request.args,
-        data=request.stream,
+        data=request.body,
         headers=headers,
         cookies=request.cookies,
     ) as resp:
@@ -83,7 +84,6 @@ async def forward(request, path, relay_backend, reply=True):
 
 @app.route(
     '/<path:path>',
-    stream=True,
     methods=["GET", "HEAD", "OPTIONS", "POST", "PUT", "PATCH", "DELETE"]
 )
 async def proxy(request, path):

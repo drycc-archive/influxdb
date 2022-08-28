@@ -57,21 +57,6 @@ spec:
           value: "172800"
         - name: "RELAY_BACKENDS_BLOCK_TIME"
           value: "60"
-        startupProbe:
-          tcpSocket:
-            port: proxy
-          initialDelaySeconds: 30
-          periodSeconds: 5
-          timeoutSeconds: 1
-          successThreshold: 1
-          failureThreshold: 5
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: proxy
-        livenessProbe:
-          tcpSocket:
-            port: proxy
       - name: drycc-influxdb-backend
         image: {{.Values.imageRegistry}}/{{.Values.imageOrg}}/influxdb:{{.Values.imageTag}}
         imagePullPolicy: {{.Values.imagePullPolicy}}
@@ -126,7 +111,7 @@ spec:
         startupProbe:
           tcpSocket:
             port: backend
-          initialDelaySeconds: 30
+          initialDelaySeconds: 10
           periodSeconds: 5
           timeoutSeconds: 1
           successThreshold: 1
