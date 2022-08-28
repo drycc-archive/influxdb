@@ -3,8 +3,8 @@ FROM registry.drycc.cc/drycc/base:bullseye
 ENV DRYCC_UID=1001 \
   DRYCC_GID=1001 \
   DRYCC_HOME_DIR=/data \
-  PYTHON_VERSION="3.10.4" \
-  INFLUXDB_VERSION="2.2.0"
+  PYTHON_VERSION="3.10.6" \
+  INFLUXDB_VERSION="2.4.0"
 
 COPY . /
 

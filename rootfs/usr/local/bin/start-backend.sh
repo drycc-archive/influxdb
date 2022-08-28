@@ -1,5 +1,11 @@
 #!/bin/bash
 
+export INFLUXD_ENGINE_PATH="/data"
+export INFLUXD_BOLT_PATH="/data/influxd.bolt"
+export INFLUXD_CONFIG_PATH="/data/influxdb.conf"
+export INFLUX_CONFIGS_PATH="/data/configs"
+export INFLUXD_HTTP_BIND_ADDRESS=":8086"
+
 function check_env(){
   if [ -z "${INFLUXDB_ORG}" ]; then
     echo "Please set INFLUXDB_ORG environment"
@@ -28,12 +34,16 @@ function check_env(){
 }
 
 function init_influxdb(){
-  influxd run --bolt-path /data/influxd.bolt --engine-path /data/engine --store bolt &
+  INFLUXDB_HTTP_BIND_ADDRESS="127.0.0.1:8086" influxd run --store=disk &
   pid=$!
+  echo "Waiting to run influxdb bg no auth..."
+  while [[ $(curl -s -o /dev/null -w "%{http_code}" localhost:8086/ping) != "204" ]]; do 
+    sleep 5;
+  done
+
   while true
   do
-    sleep 2
-    has_bucket=$(influx bucket ls -n "$INFLUXDB_BUCKET" | awk '$2==ENVIRON["INFLUXDB_BUCKET"] {print $2}')
+    has_bucket=$(influx bucket ls -o "${INFLUXDB_ORG}" -n "$INFLUXDB_BUCKET" 2>/dev/null | awk '$2==ENVIRON["INFLUXDB_BUCKET"] {print $2}')
     if [ "$has_bucket" ]; then
       break
     else
@@ -43,15 +53,17 @@ function init_influxdb(){
         -u "${INFLUXDB_USER}" \
         -p "${INFLUXDB_PASSWORD}" \
         -t "${INFLUXDB_TOKEN}" \
-        -r "${INFLUXDB_RETENTION}" \
-        > /dev/null 2>&1
+        -r "${INFLUXDB_RETENTION}"
     fi
+    echo "Waiting to initialize influxdb..."
+    sleep 2s
   done
-  kill -15 $pid && wait $pid
+  kill -s TERM $pid && wait $pid
 }
 
 check_env
-echo "Waiting to initialize influxdb..."
-init_influxdb
-echo "Initialization of database completed."
-exec influxd run --bolt-path /data/influxd.bolt --engine-path /data/engine --store bolt
+if [[ ! -f "${INFLUX_CONFIGS_PATH}" ]]; then
+  init_influxdb
+  echo "Initialization of database completed."
+fi
+exec influxd run --store disk

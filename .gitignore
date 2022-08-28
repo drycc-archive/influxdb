@@ -4,3 +4,4 @@
 .DS_Store
 .vscode
 influxdb/manifests/*.tmp.yaml
+.venv/
