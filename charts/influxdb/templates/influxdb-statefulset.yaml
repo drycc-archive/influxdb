@@ -9,6 +9,9 @@ metadata:
     component.drycc.cc/version: {{ .Values.imageTag }}
 spec:
   replicas: {{ .Values.replicas }}
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: Parallel
   serviceName: drycc-influxdb
   selector:
     matchLabels:
@@ -54,10 +57,21 @@ spec:
           value: "172800"
         - name: "RELAY_BACKENDS_BLOCK_TIME"
           value: "60"
-        livenessProbe:
+        startupProbe:
+          tcpSocket:
+            port: proxy
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 5
+        readinessProbe:
           httpGet:
             path: /health
-            port: http
+            port: proxy
+        livenessProbe:
+          tcpSocket:
+            port: proxy
       - name: drycc-influxdb-backend
         image: {{.Values.imageRegistry}}/{{.Values.imageOrg}}/influxdb:{{.Values.imageTag}}
         imagePullPolicy: {{.Values.imagePullPolicy}}
@@ -109,10 +123,21 @@ spec:
         - name: {{ $key }}
           value: {{ $value | quote }}
         {{- end }}
-        livenessProbe:
+        startupProbe:
+          tcpSocket:
+            port: backend
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 5
+        readinessProbe:
           httpGet:
             path: /health
-            port: http
+            port: backend
+        livenessProbe:
+          tcpSocket:
+            port: backend
 {{- if .Values.persistence.enabled }}
         volumeMounts:
         - name: influxdb-data
