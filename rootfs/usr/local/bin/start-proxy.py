@@ -87,7 +87,7 @@ async def forward(request, path, relay_backend, reply=True):
     methods=["GET", "HEAD", "OPTIONS", "POST", "PUT", "PATCH", "DELETE"]
 )
 async def proxy(request, path):
-    blocked = lambda url: url not in RELAY_BACKENDS_BLOCK_LIST
+    blocked = lambda url: url in RELAY_BACKENDS_BLOCK_LIST
     if path in RELAY_PATHS:
         tasks = [
             forward(
@@ -95,7 +95,8 @@ async def proxy(request, path):
                 path,
                 url,
                 index == len(RELAY_BACKENDS) - 1,
-            ) for index, url in enumerate(RELAY_BACKENDS.keys()) if blocked(url)
+            ) for index, url in enumerate(
+                RELAY_BACKENDS.keys()) if not blocked(url)
         ]
         if len(tasks) > 0:
             await asyncio.gather(*tasks)
