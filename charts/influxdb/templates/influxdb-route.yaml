@@ -1,0 +1,31 @@
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: HTTPRoute
+metadata:
+  name: drycc-influxdb
+  labels:
+    app: "drycc-influxdb"
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  hostnames:
+  - drycc-influxdb.{{ .Values.global.platformDomain }}
+  parentRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: drycc-gateway
+    sectionName: drycc-gateway-listener-http
+{{- if .Values.global.certManagerEnabled }}
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: drycc-gateway
+    sectionName: drycc-gateway-listener-https
+{{- end }}
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: drycc-influxdb
+      port: 80
