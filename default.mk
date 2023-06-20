@@ -19,11 +19,11 @@ push: docker-push
 deploy: check-kubectl docker-build docker-push install
 
 docker-build:
-	docker build ${DOCKER_BUILD_FLAGS} -t ${IMAGE} rootfs
+	docker build ${DOCKER_BUILD_FLAGS} --build-arg CODENAME=${CODENAME} -t ${IMAGE} rootfs
 	docker tag ${IMAGE} ${MUTABLE_IMAGE}
 
 docker-buildx:
-	docker buildx build --platform ${PLATFORM} -t ${IMAGE} rootfs --push
+	docker buildx build --build-arg CODENAME=${CODENAME} --platform ${PLATFORM} -t ${IMAGE} rootfs --push
 
 clean: check-docker
 	docker rmi $(IMAGE)
@@ -36,7 +36,7 @@ test-style:
 .PHONY: build push docker-build clean upgrade deploy test test-style
 
 build-all:
-	docker build ${DOCKER_BUILD_FLAGS} -t ${DRYCC_REGISTRY}/${IMAGE_PREFIX}/influxdb:${VERSION} influxdb/rootfs
+	docker build ${DOCKER_BUILD_FLAGS} --build-arg CODENAME=${CODENAME} -t ${DRYCC_REGISTRY}/${IMAGE_PREFIX}/influxdb:${VERSION} influxdb/rootfs
 
 push-all:
 	docker push ${DRYCC_REGISTRY}/${IMAGE_PREFIX}/influxdb:${VERSION}
